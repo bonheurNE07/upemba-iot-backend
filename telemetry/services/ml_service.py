@@ -43,8 +43,8 @@ class AnomalyDetector:
         # Handle network dropouts by interpolating missing values in the rolling window
         df.interpolate(method="linear", limit_direction="both", inplace=True)
         # Fallback for remaining NaNs (e.g., if interpolation couldn't fill everything)
-        df.fillna(method="ffill", inplace=True)
-        df.fillna(method="bfill", inplace=True)
+        df.ffill(inplace=True)
+        df.bfill(inplace=True)
 
         # 2. Data Ingestion & Preprocessing: Normalization
         # Use StandardScaler to ensure all features are evaluated on a uniform mathematical scale
