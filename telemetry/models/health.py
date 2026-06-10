@@ -5,34 +5,47 @@ from inventory.models import Equipment
 
 
 class HealthStatus(models.Model):
+    """
+    This is the database table that stores the results from our Machine Learning model.
+    Every time the ML pipeline runs, it creates a new row here.
+    """
+    
+    # We define 3 specific statuses so that we only ever use these exact words.
     class Status(models.TextChoices):
         NORMAL = "NORMAL", _("Normal")
         WARNING = "WARNING", _("Warning")
         CRITICAL = "CRITICAL", _("Critical")
 
+    # This connects the HealthStatus to a specific piece of Equipment.
+    # 'CASCADE' means if the equipment is deleted, all its health history is also deleted.
     equipment = models.ForeignKey(
         Equipment,
         on_delete=models.CASCADE,
         related_name="health_assessments",
     )
 
-    # The raw output from Scikit-Learn Isolation Forest
-    # Usually, -1 is an anomaly, 1 is normal
+    # The raw mathematical output from our Scikit-Learn Isolation Forest.
+    # We save this so we can plot it on charts later.
     anomaly_score = models.FloatField(_("Anomaly Score"))
 
+    # The human-readable status (NORMAL/WARNING/CRITICAL).
+    # This is what the frontend uses to decide which color LED to turn on.
     status = models.CharField(
         max_length=10,
         choices=Status.choices,
         default=Status.NORMAL,
-        db_index=True,
+        db_index=True, # Makes searching by status much faster
     )
 
+    # Automatically records the exact date and time the prediction was made.
     prediction_timestamp = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         verbose_name = _("Health Status")
         verbose_name_plural = _("Health Statuses")
+        # When we ask the database for health statuses, give us the newest ones first.
         ordering = ["-prediction_timestamp"]
 
     def __str__(self):
+        # How this object appears in the Django Admin panel
         return f"{self.equipment.name} - {self.status}"
