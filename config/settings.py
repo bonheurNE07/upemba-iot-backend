@@ -168,3 +168,4 @@ SIMPLE_JWT = {
 # MQTT Configuration
 MQTT_BROKER_HOST = "localhost"
 MQTT_BROKER_PORT = 1883
+MQTT_TELEMETRY_TOPIC = "upemba/sensors/+/telemetry"
